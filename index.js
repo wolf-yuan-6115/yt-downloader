@@ -1,7 +1,8 @@
 const {
   app,
   BrowserWindow,
-  ipcMain
+  ipcMain,
+  shell
 } = require("electron");
 const { join } = require("path");
 const ytdl = require("ytdl-core");
@@ -14,6 +15,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 550,
     height: 400,
+    minWidth: 550,
+    minHeight: 400,
     maximizable: true,
     webPreferences: {
       preload: join(__dirname, "preload.js")
@@ -22,7 +25,6 @@ function createWindow() {
   });
 
   mainWindow.loadFile("app.html");
-  mainWindow.webContents.openDevTools();
   mainWindow.removeMenu();
 }
 
@@ -39,9 +41,10 @@ app.on("window-all-closed", () => {
 });
 
 ipcMain.handle("getVideoData", async (event, arg) => {
-  if (!ytdl.validateURL(arg)) return { error: true };
+  if (!ytdl.validateURL(arg)) return { error: true, status: 1 };
   let data = await ytdl.getInfo(arg);
-  return data;
+  if (data.videoDetails.lengthSeconds == 0) return { error: true, status: 2 };
+  else return data;
 });
 
 ipcMain.handle("startDownload", async (event, arg) => {
@@ -52,19 +55,30 @@ ipcMain.handle("startDownload", async (event, arg) => {
       dlChunkSize: 0
     });
     stream.on("progress", (chunkSize, downloaded, total) => {
-      let prog = downloaded / total;
+      let prog = (downloaded / total) * 100;
       mainWindow.webContents.send("progress", prog);
     });
-    let format = arg.downloadFormat === 1 ? "mp3" : "mp4";
-    ytdlRender.arbitraryStream(stream, {
-      fmt: format,
-      opusEncoded: false
-    })
-      .pipe(fs.createWriteStream(`./download/${arg.videoDetails.title}.${format}`))
-      .on("close", () => {
-        mainWindow.webContents.send("progress", "done");
-      });
-  } catch {
+    if (!fs.existsSync("./download")){
+      fs.mkdirSync("./download");
+    }
+    if (arg.downloadFormat === 1) {
+      ytdlRender.arbitraryStream(stream, {
+        fmt: "mp3",
+        opusEncoded: false
+      })
+        .pipe(fs.createWriteStream(join(process.env.PORTABLE_EXECUTABLE_DIR, "download", `${arg.videoDetails.title}.mp3`)))
+        .on("close", () => {
+          mainWindow.webContents.send("progress", "done");
+        });
+    } else {
+      stream
+        .pipe(fs.createWriteStream(join(process.env.PORTABLE_EXECUTABLE_DIR, "download", `${arg.videoDetails.title}.mp4`)))
+        .on("close", () => {
+          mainWindow.webContents.send("progress", "done");
+        });
+    }
+  } catch (e) {
+    console.log(e);
     return { error: true, status: 2 };
   }
 });

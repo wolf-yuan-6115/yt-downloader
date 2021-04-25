@@ -23,7 +23,7 @@
     <div class="mdui-text-center">
         <select class="mdui-select" id="format" mdui-select>
             <option value="1">mp3 (音樂)</option>
-            <option value="2">mp4 (影片)</option>
+            <option value="2" mdui-tooltip="{content:'目前無法選擇畫質，很抱歉。'}">mp4 (影片)</option>
         </select>
     </div>
     <br>
@@ -33,13 +33,13 @@
     <div class="mdui-dialog-title">即將開始下載</div>
     <div class="mdui-dialog-content" id="dialogSongname">開始下載</div>
     <div class="mdui-dialog-actions">
-        <button class="mdui-btn mdui-ripple" id="dialogStart">開始下載</button>
+        <button class="mdui-btn mdui-ripple mdui-btn-raised" id="dialogStart">開始下載</button>
     </div>
 </div>
-<div class="mdui-dialog" id="downloadProgress">
-    <div class="mdui-dialog-title">正在下載...請稍候</div>
-    <div class="mdui-dialog-content">
-        <p id="downloadDialogInfo"></p>
+<div class="mdui-container mdui-center mdui-hidden" id="downloadProgress">
+    <p class="mdui-text-center">正在下載...請稍候</p>
+    <div>
+        <p id="downloadDialogInfo" class="mdui-text-center"></p>
         <div class="mdui-progress">
             <div class="mdui-progress-determinate" style="width: 0;" id="downloadDialogProgress"></div>
         </div>

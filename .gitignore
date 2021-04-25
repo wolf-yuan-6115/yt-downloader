@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-ports
+
+# Downloaded songs/videos
+download/

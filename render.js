@@ -1,4 +1,4 @@
-let videoData = null, url = null, state = false;
+let videoData = null, url = null;
 
 document.getElementById("download").onclick = function () {
   document.getElementById("download").innerHTML = '<div class="mdui-spinner"></div>';
@@ -10,9 +10,15 @@ document.getElementById("download").onclick = function () {
 window.addEventListener("infoReceived", function (data) {
   document.getElementById("download").innerHTML = "下載";
   if (data.detail.error) {
-    mdui.snackbar("網址無效!", {
-      position: "right-bottom"
-    });
+    if (data.detail.status === 1) {
+      mdui.snackbar("網址無效!", {
+        position: "right-bottom"
+      });
+    } else {
+      mdui.snackbar("無法下載直播影片!", {
+        position: "right-bottom"
+      });
+    }
   } else {
     mdui.alert(`即將開始下載${data.detail.videoDetails.title}`, "確認下載?", function () {
       videoData = data.detail;
@@ -24,14 +30,15 @@ window.addEventListener("infoReceived", function (data) {
 });
 
 window.addEventListener("progress", function (event) {
-  let downloadDialog = new mdui.Dialog(document.getElementById("downloadProgress"));
-  if (event.detail === "done" && state) {
-    downloadDialog.close();
-    state = false;
+  if (event.detail === "done") {
+    let attr = document.getElementById("download").getAttributeNode("disabled");
+    document.getElementById("download").removeAttributeNode(attr);
+    document.getElementById("downloadProgress").classList.add("mdui-hidden");
+    mdui.alert("下載程序已經完成，檔案已保存在放置此程式資料夾中的download資料夾", "下載完成");
   } else {
-    if (!downloadDialog.isOpen()) downloadDialog.open();
-    state = true;
+    let attr = document.createAttribute("disabled");
+    document.getElementById("download").setAttributeNode(attr);
+    document.getElementById("downloadProgress").classList.remove("mdui-hidden");
     document.getElementById("downloadDialogProgress").style.width = `${event.detail}%`;
-    downloadDialog.handleUpdate();
   }
 });
