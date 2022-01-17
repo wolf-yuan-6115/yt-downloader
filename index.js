@@ -66,13 +66,13 @@ ipcMain.handle("startDownload", async (event, arg) => {
         fmt: "mp3",
         opusEncoded: false
       })
-        .pipe(fs.createWriteStream(join(process.env.PORTABLE_EXECUTABLE_DIR, "download", `${arg.videoDetails.title}.mp3`)))
+        .pipe(fs.createWriteStream(join(__dirname, "download", `${arg.videoDetails.title}.mp3`)))
         .on("close", () => {
           mainWindow.webContents.send("progress", "done");
         });
     } else {
       stream
-        .pipe(fs.createWriteStream(join(process.env.PORTABLE_EXECUTABLE_DIR, "download", `${arg.videoDetails.title}.mp4`)))
+        .pipe(fs.createWriteStream(join(__dirname, "download", `${arg.videoDetails.title}.mp4`)))
         .on("close", () => {
           mainWindow.webContents.send("progress", "done");
         });

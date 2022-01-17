@@ -8,7 +8,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"No test command\"",
-    "start": "electron ."
+    "start": "electron .",
+    "build": "node builder.js"
   },
   "author": "Wolf yuan",
   "license": "MIT",
@@ -20,13 +21,5 @@
   "devDependencies": {
     "electron": "^12.0.5",
     "electron-builder": "^22.10.5"
-  },
-  "build": {
-    "appId": "com.wolfyuan.ytdownloader",
-    "productName": "Youtube 下載器",
-    "win": {
-      "target": "portable",
-      "icon": "./icon.png"
-    }
   }
 }
